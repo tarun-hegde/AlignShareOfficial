@@ -25,7 +25,7 @@ HF_TOKEN = os.getenv('HF_TOKEN')
 
 
 
-api_url = "https://api-inference.huggingface.co/models/CompVis/stable-diffusion-v1-4"
+api_url = "https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-xl-base-1.0"
 
 headers = {
     "Authorization": f"Bearer {HF_TOKEN}"
@@ -39,7 +39,7 @@ def read_root():
 @app.post("/generate-image/")
 async def generate_image(request: ImageCreate):
     payload = {
-        "inputs": f"In the English Language, I want to share the following idea over various social media websites: {request.prompt}"
+     "inputs": f"I'm brainstorming a post for social media. Here's the idea: {request.prompt}"
     }
 
     response = requests.post(api_url, headers=headers, json=payload)
