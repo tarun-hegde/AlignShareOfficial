@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException, Response
+from fastapi.responses import StreamingResponse
 import requests
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
@@ -38,7 +39,7 @@ def read_root():
 @app.post("/generate-image/")
 async def generate_image(request: ImageCreate):
     payload = {
-        "inputs": f"I want to share the following idea over various social media websites: {request.prompt}"
+        "inputs": f"In the English Language, I want to share the following idea over various social media websites: {request.prompt}"
     }
 
     response = requests.post(api_url, headers=headers, json=payload)
@@ -46,7 +47,6 @@ async def generate_image(request: ImageCreate):
     if response.status_code == 200:
         try:
           if response.content:
-            print(response.text)
             image_data = response.content
             image = Image.open(BytesIO(image_data))
             
@@ -54,7 +54,7 @@ async def generate_image(request: ImageCreate):
             image_path = "assets/generated_image.png"
             image.save(image_path, "PNG")
 
-            return {"message": "Image generated successfully", "image_path": image_path}
+            return StreamingResponse(BytesIO(image_data), media_type="image/png")
           else:
             raise HTTPException(status_code=500, detail="Empty response from the API")
         except (JSONDecodeError, KeyError) as e:
