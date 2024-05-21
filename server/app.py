@@ -6,7 +6,7 @@ import uvicorn
 import os
 from schema import ImageCreate
 from json.decoder import JSONDecodeError
-from PIL import Image
+from PIL import Image, ImageDraw, ImageFont
 from io import BytesIO
 from dotenv import load_dotenv
 
@@ -39,7 +39,7 @@ def read_root():
 @app.post("/generate-image/")
 async def generate_image(request: ImageCreate):
     payload = {
-     "inputs": f"I'm brainstorming a post for social media. Here's the idea: {request.prompt}"
+     "inputs": f"Brainstorm a post for social media. Here's the idea: {request.prompt}"
     }
 
     response = requests.post(api_url, headers=headers, json=payload)
@@ -49,19 +49,41 @@ async def generate_image(request: ImageCreate):
           if response.content:
             image_data = response.content
             image = Image.open(BytesIO(image_data))
-            
+            image_with_border = add_borders(image)
             # Save the image or handle it as needed
             image_path = "assets/generated_image.png"
-            image.save(image_path, "PNG")
-
-            return StreamingResponse(BytesIO(image_data), media_type="image/png")
+            image_with_border.save(image_path, "PNG")
+            buffer = BytesIO()
+            image_with_border.save(buffer, format='PNG')
+            buffer.seek(0)
+            return StreamingResponse(buffer, media_type="image/png")
           else:
             raise HTTPException(status_code=500, detail="Empty response from the API")
         except (JSONDecodeError, KeyError) as e:
             print(e)
             raise HTTPException(status_code=500, detail="Failed to decode the image data from the response")
     else:
-        raise HTTPException(status_code=response.status_code, detail=response.json())
+        raise HTTPException(status_code=response.status_code, detail=response.json())    
 
-if __name__ == '__main__':
-    uvicorn.run(app, host='0.0.0.0', port=8000)
+def add_borders(image: Image):
+    border_color = (0, 0, 0)  
+    border_width = 10  
+    width, height = image.size
+    new_width = width + 2 * border_width
+    new_height = height + 2 * border_width
+    image_with_border = Image.new("RGB", (new_width, new_height), border_color)
+    image_with_border.paste(image, (border_width, border_width))
+    
+    # Draw borders on the image
+    draw = ImageDraw.Draw(image_with_border)
+    draw.rectangle([(0, 0), (new_width-1, new_height-1)], outline=border_color, width=border_width)
+    
+    return image_with_border
+
+# def add_text_to_image(image: Image, text: str):
+#     draw = ImageDraw.Draw(image)
+#     width, height = image.size
+#     text_position = (10, height // 6)  # Position the text at 1/6th of the image height
+#     font = ImageFont.truetype("sans-serif.ttf", 'utf-8')  # Use a sans-serif font with size 20
+#     draw.text(text_position, text, fill="white", font=font)
+#     return image
