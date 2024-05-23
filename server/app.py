@@ -23,6 +23,7 @@ app.add_middleware(
 
 HF_TOKEN = os.getenv('HF_TOKEN')
 api_url = "https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-xl-base-1.0"
+summarizer_url = "https://api-inference.huggingface.co/models/utrobinmv/t5_summary_en_ru_zh_base_2048"
 
 headers = {
     "Authorization": f"Bearer {HF_TOKEN}"
@@ -45,7 +46,9 @@ async def generate_image(request: ImageCreate):
             if response.content:
                 image_data = response.content
                 image = Image.open(BytesIO(image_data))
-                image_with_text = add_text_to_image(image, request.prompt)
+                new_text= text_summarizer(request.prompt)
+                print(new_text)
+                image_with_text = add_text_to_image(image, new_text[0]['summary_text'])
                 image_with_border = add_borders(image_with_text)
                 # Save the image or handle it as needed
                 image_path = "assets/generated_image.png"
@@ -86,3 +89,23 @@ def add_text_to_image(image: Image, text: str):
     font = ImageFont.truetype(font_path, font_size)
     draw.text(text_position, text, fill="white", font=font)
     return image
+
+def text_summarizer(text: str):
+    payload = {
+        "inputs": text,
+        "parameters": {
+            "max_length": min(len(text),30)
+        }
+    }
+    response = requests.post(summarizer_url, headers=headers, json=payload)
+    if response.status_code == 200:
+        try:
+            if response.content:
+                return response.json()
+            else:
+                raise HTTPException(status_code=500, detail="Empty response from the API")
+        except (JSONDecodeError, KeyError) as e:
+            print(e)
+            raise HTTPException(status_code=500, detail="Failed to decode the image data from the response")
+    else:
+        raise HTTPException(status_code=response.status_code, detail=response.json())
