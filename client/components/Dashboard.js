@@ -1,4 +1,5 @@
 "use client"
+
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button"
 import {
@@ -43,6 +44,38 @@ const Dashboard = () => {
         }
     }
 
+    const handleShareOnFacebook = () => {
+        const url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`;
+        window.open(url, '_blank');
+    }
+    
+    const handleShareOnTwitter = () => {
+        const url = `https://twitter.com/intent/tweet?url=${encodeURIComponent(window.location.href)}&text=Check out this image!`;
+        window.open(url, '_blank');
+    }
+
+    const handleShareOnInstagram = () => {
+        const caption = encodeURIComponent('Check out this image!');
+        const url = `https://www.instagram.com/?caption=${caption}`;
+        window.open(url, '_blank');
+    }
+
+    const handleShareOnSocialMedia = (platform) => {
+        switch (platform) {
+            case 'facebook':
+                handleShareOnFacebook();
+                break;
+            case 'twitter':
+                handleShareOnTwitter();
+                break;
+            case 'instagram':
+                handleShareOnInstagram();
+                break;
+            default:
+                break;
+        }
+    }
+
     return (
         <div>
             <Card>
@@ -57,7 +90,16 @@ const Dashboard = () => {
                     <Button onClick={handleGenerateImage}>Generate</Button>
                     {loading &&  <p style={{ color: "white", marginTop: "12px" }}>Please wait for a while, your image is being generated...</p>}
                     {imageData && !loading && (
-                        <img src={imageData} alt="Generated" style={{ width: '500px', height: '500px', marginTop: '20px' }} />
+                        <>
+                            <img src={imageData} alt="Generated" style={{ width: '300px', height: '300px', marginTop: '20px' }} />
+                            <div style={{ marginTop: '20px' }}>
+                            <p style={{ color: "white", textAlign: "center", marginBottom: "8px"}}>Share this update on:</p>
+                            <Button onClick={() => handleShareOnSocialMedia('facebook')} style={{ marginRight: '10px' }}>Facebook</Button>
+                            <Button onClick={() => handleShareOnSocialMedia('twitter')} style={{ marginRight: '10px' }}>Twitter</Button>
+                            <Button onClick={() => handleShareOnSocialMedia('instagram')}>Instagram</Button>
+
+                            </div>
+                        </>
                     )}
                     {error && <p>Error: {JSON.stringify(error)}</p>}
                 </CardFooter>
