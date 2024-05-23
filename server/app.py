@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Response
+from fastapi import FastAPI, HTTPException
 from fastapi.responses import StreamingResponse
 import requests
 from fastapi.middleware.cors import CORSMiddleware
@@ -22,16 +22,12 @@ app.add_middleware(
 )
 
 HF_TOKEN = os.getenv('HF_TOKEN')
-
-
-
 api_url = "https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-xl-base-1.0"
 
 headers = {
     "Authorization": f"Bearer {HF_TOKEN}"
 }
 
-#
 @app.get("/")
 def read_root():
     return {"message": "Welcome to AlignShare"}
@@ -39,31 +35,32 @@ def read_root():
 @app.post("/generate-image/")
 async def generate_image(request: ImageCreate):
     payload = {
-     "inputs": f"Brainstorm a post for social media. Here's the idea: {request.prompt}"
+        "inputs": f"Brainstorm a post for social media. Here's the idea: {request.prompt}"
     }
 
     response = requests.post(api_url, headers=headers, json=payload)
 
     if response.status_code == 200:
         try:
-          if response.content:
-            image_data = response.content
-            image = Image.open(BytesIO(image_data))
-            image_with_border = add_borders(image)
-            # Save the image or handle it as needed
-            image_path = "assets/generated_image.png"
-            image_with_border.save(image_path, "PNG")
-            buffer = BytesIO()
-            image_with_border.save(buffer, format='PNG')
-            buffer.seek(0)
-            return StreamingResponse(buffer, media_type="image/png")
-          else:
-            raise HTTPException(status_code=500, detail="Empty response from the API")
+            if response.content:
+                image_data = response.content
+                image = Image.open(BytesIO(image_data))
+                image_with_text = add_text_to_image(image, request.prompt)
+                image_with_border = add_borders(image_with_text)
+                # Save the image or handle it as needed
+                image_path = "assets/generated_image.png"
+                image_with_border.save(image_path, "PNG")
+                buffer = BytesIO()
+                image_with_border.save(buffer, format='PNG')
+                buffer.seek(0)
+                return StreamingResponse(buffer, media_type="image/png")
+            else:
+                raise HTTPException(status_code=500, detail="Empty response from the API")
         except (JSONDecodeError, KeyError) as e:
             print(e)
             raise HTTPException(status_code=500, detail="Failed to decode the image data from the response")
     else:
-        raise HTTPException(status_code=response.status_code, detail=response.json())    
+        raise HTTPException(status_code=response.status_code, detail=response.json())
 
 def add_borders(image: Image):
     border_color = (0, 0, 0)  
@@ -80,10 +77,12 @@ def add_borders(image: Image):
     
     return image_with_border
 
-# def add_text_to_image(image: Image, text: str):
-#     draw = ImageDraw.Draw(image)
-#     width, height = image.size
-#     text_position = (10, height // 6)  # Position the text at 1/6th of the image height
-#     font = ImageFont.truetype("sans-serif.ttf", 'utf-8')  # Use a sans-serif font with size 20
-#     draw.text(text_position, text, fill="white", font=font)
-#     return image
+def add_text_to_image(image: Image, text: str):
+    draw = ImageDraw.Draw(image)
+    width, height = image.size
+    text_position = (10, height // 6)
+    font_path = "./public/Sanseriffic.otf"  
+    font_size = 36
+    font = ImageFont.truetype(font_path, font_size)
+    draw.text(text_position, text, fill="white", font=font)
+    return image
