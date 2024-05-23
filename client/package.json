@@ -20,9 +20,11 @@
     "react": "^18",
     "react-countup": "6.5.3",
     "react-dom": "^18",
+    "react-router-dom": "^6.23.1",
     "react-visibility-sensor": "^5.1.1",
     "tailwind-merge": "^2.3.0",
-    "tailwindcss-animate": "^1.0.7"
+    "tailwindcss-animate": "^1.0.7",
+    "tailwindcss-animated": "^1.0.1"
   },
   "devDependencies": {
     "postcss": "^8",
