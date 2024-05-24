@@ -53,8 +53,8 @@ def read_root() -> str:
 @app.post("/generate-image/")
 async def generate_image(request: ImageCreate):
     print(request)
-    payload = {
-        "inputs": f"Create a high-quality, realistic image for a social media post announcing a new product launch for a tech company. The image should be modern and sleek, with a professional look. Include elements like a futuristic device, clean lines, and vibrant colors. Ensure the company's logo is prominently displayed in a corner of the image. The background should be minimalistic yet sophisticated, with a hint of technological elements like circuit patterns or abstract digital graphics.Example Post Text,:🚀 Exciting News! 🚀 [Company]! is thrilled to announce the launch of our latest product, [Product Name]! This cutting-edge technology is designed to revolutionize the way you [product function]. Stay tuned for more updates and be among the first to experience the future of innovation. #TechLaunch #Innovation #FutureIsHere,for the following update: {request.prompt}"
+    payload={
+        "inputs": f"Create a program that utilizes stable diffusion to fetch real-time updates as stated in {request.prompt}, dynamically generating visually appealing images representing these updates. The generated images should succinctly summarize the latest news and developments for the company, ready for seamless posting on their respective social media feeds."
     }
     print(request.prompt)
 
@@ -85,7 +85,7 @@ async def generate_image(request: ImageCreate):
         raise HTTPException(status_code=response.status_code, detail=response.json())
 
 def add_borders(image: Image):
-    border_color = (0, 0, 0)  
+    border_color = (10, 30, 40)  
     border_width = 10  
     width, height = image.size
     new_width = width + 2 * border_width
@@ -95,27 +95,13 @@ def add_borders(image: Image):
     
     # Draw borders on the image
     draw = ImageDraw.Draw(image_with_border)
-    draw.rectangle([(0, 0), (new_width-1, new_height-1)], outline=border_color, width=border_width)
+    draw.rectangle([(0, new_width//4), (new_width-1, new_height-1)], outline=border_color, width=border_width)
     
     return image_with_border
 
-def add_text_to_image(image: Image, text: str):
-    draw = ImageDraw.Draw(image)
-    width, height = image.size
-    text_position = (10, height // 10)
-    font_path = "./public/Sanseriffic.otf"  
-    font_size = 36
-    font = ImageFont.truetype(font_path, font_size)
-    formatted_text = add_line_breaks(text)
-    draw.text(text_position, formatted_text, fill="white", font=font)
-    return image
-
 def text_summarizer(text: str):
     payload = {
-        "inputs": text,
-        "parameters": {
-            "max_length": min(len(text),30)
-        }
+        "inputs": text
     }
     response = requests.post(summarizer_url, headers=headers, json=payload)
     if response.status_code == 200:
@@ -129,6 +115,29 @@ def text_summarizer(text: str):
             raise HTTPException(status_code=500, detail="Failed to decode the image data from the response")
     else:
         raise HTTPException(status_code=response.status_code, detail=response.json())
+    
+def add_text_to_image(image: Image, text: str):
+    draw = ImageDraw.Draw(image)
+    width, height = image.size
+    text_position = (10, 10)  
+    font_path = "./public/Sanseriffic.otf"  
+    font_size = 55  
+    font = ImageFont.truetype(font_path, font_size)
+    formatted_text = add_line_breaks(text)
+     # Determine the size of the text
+    text_width, text_height =width, height
+    
+    # Image with bg
+    text_image = Image.new("RGB", (text_width, text_height//4), color="white")
+    
+    # Draw the text on the new image
+    text_draw = ImageDraw.Draw(text_image)
+    text_draw.text((0, 0), formatted_text, fill="black", font=font)
+    
+    # Paste the text image onto the original image at the specified position
+    image.paste(text_image, text_position)
+    
+    return image   
 
 def add_line_breaks(text:str):
     try:
@@ -136,7 +145,7 @@ def add_line_breaks(text:str):
         new_text = ''
         for i, word in enumerate(words):
             new_text += word
-            if (i+1) % 8 == 0:
+            if (i+1) % 6== 0:
                 new_text += '\n'
             else:
                 new_text += ' '
