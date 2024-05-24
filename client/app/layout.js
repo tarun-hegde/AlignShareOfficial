@@ -1,15 +1,16 @@
-import { Inter as FontSans } from "next/font/google"
+import { Inter as FontSans } from "next/font/google";
 import "../styles/globals.css";
 import Header from "@/components/Header";
+import Hero from "@/components/Hero";
 import Dashboard from "@/components/Dashboard";
 import Main from "@/components/Main";
-// import Footer from "@/components/Footer";
-import { cn } from "@/lib/utils"
- 
+import Footer from "@/components/Footer";
+import { cn } from "@/lib/utils";
+
 const fontSans = FontSans({
   subsets: ["latin"],
   variable: "--font-sans",
-})
+});
 
 export const metadata = {
   title: "Create Next App",
@@ -18,7 +19,7 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" >
+    <html lang="en">
       <head />
       <body
         className={cn(
@@ -26,15 +27,16 @@ export default function RootLayout({ children }) {
           fontSans.variable
         )}
       >
-            <div className="main-container">
-      <div className="main-content">
-        <Header />
-        <Main />
-      <Dashboard />
-      
-        {/* <Footer /> */}
-      </div>
-    </div>
+        <div className="main-container">
+          <div className="main-content">
+            <Header />
+            <Hero />
+            <Main />
+            <Dashboard />
+
+            <Footer />
+          </div>
+        </div>
       </body>
     </html>
   );

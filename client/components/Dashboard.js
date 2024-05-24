@@ -50,7 +50,9 @@ const Dashboard = () => {
                         '',
                     ),
                 );
-                setImageData("data:;base64," + base64);
+                setTimeout(() => {
+                    setImageData("data:;base64," + base64);
+                }, 10000); // Introduce a delay of 10 seconds before updating the imageData
             } else {
                 console.error('Unexpected server response format');
             }
