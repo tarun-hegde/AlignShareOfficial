@@ -17,7 +17,8 @@ const Dashboard = () => {
     const [loading, setLoading] = useState(false);
     useEffect(() => {
         getPrompt();
-    }, [prompt]);
+    }, []);
+
     const getPrompt = async () => {
         try {
             const response = await axios.get('http://0.0.0.0:8000/');

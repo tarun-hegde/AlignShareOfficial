@@ -1,6 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import StreamingResponse
 import requests
+import random
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 import os
@@ -22,6 +23,7 @@ app.add_middleware(
 )
 
 HF_TOKEN = os.getenv('HF_TOKEN')
+NEWS_API_KEY = os.getenv('NEWS_API_KEY')
 api_url = "https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-xl-base-1.0"
 summarizer_url = "https://api-inference.huggingface.co/models/utrobinmv/t5_summary_en_ru_zh_base_2048"
 
@@ -31,7 +33,21 @@ headers = {
 
 @app.get("/")
 def read_root() -> str:
-    data = "🌟 Peakflo's Exciting May Releases 🌟.We are excited to announce our latest updates and enhancements, designed to streamline your finance processes and make managing your accounts receivable and accounts payable even easier.Check out the new features and improvements we’ve rolled out:✅ Manage and track customer replies directly from the Tasks tab✅ Modify currency for payments and apply exchange rates easily✅ Seamlessly manage vendor onboarding and track changes in vendor details✅ Enable vendors to access the Vendor Portal via WhatsApp✅ Effortlessly manage split payouts"
+    companies=["Apple","Google","Microsoft","Amazon","Facebook"
+               ,"Tesla","Netflix","Twitter","Uber","Lyft",
+               "Airbnb","Zoom","Slack","Shopify","Spotify",
+               "Pinterest","Snapchat","TikTok","Reddit","LinkedIn"]
+    random_company = random.choice(companies)
+    print(random_company)
+    selected_company = random_company
+    news_url=f"https://newsapi.org/v2/everything?q={selected_company}&from=2024-05-23&language=en&sortBy=publishedAt&apiKey={NEWS_API_KEY}"
+    response = requests.get(news_url)
+    new_response=response.json()
+    size=len(new_response['articles'])
+    if size>0:
+     data=new_response['articles'][size-1]['description']
+    else :
+       data=""
     return data
 
 @app.post("/generate-image/")
