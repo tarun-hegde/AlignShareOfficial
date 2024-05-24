@@ -30,14 +30,17 @@ headers = {
 }
 
 @app.get("/")
-def read_root():
-    return {"message": "Welcome to AlignShare"}
+def read_root() -> str:
+    data = "🌟 Peakflo's Exciting May Releases 🌟.We are excited to announce our latest updates and enhancements, designed to streamline your finance processes and make managing your accounts receivable and accounts payable even easier.Check out the new features and improvements we’ve rolled out:✅ Manage and track customer replies directly from the Tasks tab✅ Modify currency for payments and apply exchange rates easily✅ Seamlessly manage vendor onboarding and track changes in vendor details✅ Enable vendors to access the Vendor Portal via WhatsApp✅ Effortlessly manage split payouts"
+    return data
 
 @app.post("/generate-image/")
 async def generate_image(request: ImageCreate):
+    print(request)
     payload = {
-        "inputs": f"Brainstorm a post for social media. Here's the idea: {request.prompt}"
+        "inputs": f"Create a high-quality, realistic image for a social media post announcing a new product launch for a tech company. The image should be modern and sleek, with a professional look. Include elements like a futuristic device, clean lines, and vibrant colors. Ensure the company's logo is prominently displayed in a corner of the image. The background should be minimalistic yet sophisticated, with a hint of technological elements like circuit patterns or abstract digital graphics.Example Post Text,:🚀 Exciting News! 🚀 [Company]! is thrilled to announce the launch of our latest product, [Product Name]! This cutting-edge technology is designed to revolutionize the way you [product function]. Stay tuned for more updates and be among the first to experience the future of innovation. #TechLaunch #Innovation #FutureIsHere,for the following update: {request.prompt}"
     }
+    print(request.prompt)
 
     response = requests.post(api_url, headers=headers, json=payload)
 
@@ -83,11 +86,12 @@ def add_borders(image: Image):
 def add_text_to_image(image: Image, text: str):
     draw = ImageDraw.Draw(image)
     width, height = image.size
-    text_position = (10, height // 6)
+    text_position = (10, height // 10)
     font_path = "./public/Sanseriffic.otf"  
     font_size = 36
     font = ImageFont.truetype(font_path, font_size)
-    draw.text(text_position, text, fill="white", font=font)
+    formatted_text = add_line_breaks(text)
+    draw.text(text_position, formatted_text, fill="white", font=font)
     return image
 
 def text_summarizer(text: str):
@@ -109,3 +113,18 @@ def text_summarizer(text: str):
             raise HTTPException(status_code=500, detail="Failed to decode the image data from the response")
     else:
         raise HTTPException(status_code=response.status_code, detail=response.json())
+
+def add_line_breaks(text:str):
+    try:
+        words = text.split()
+        new_text = ''
+        for i, word in enumerate(words):
+            new_text += word
+            if (i+1) % 8 == 0:
+                new_text += '\n'
+            else:
+                new_text += ' '
+
+        return new_text
+    except AttributeError as e:
+        raise Exception(f"Error occurred during line break addition: {e}")
