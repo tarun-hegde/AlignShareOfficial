@@ -15,6 +15,21 @@ const Dashboard = () => {
     const [prompt, setPrompt] = useState('');
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(false);
+    useEffect(() => {
+        getPrompt();
+    }, [prompt]);
+    const getPrompt = async () => {
+        try {
+            const response = await axios.get('http://0.0.0.0:8000/');
+            if (typeof response.data === 'string') {
+                setPrompt(response.data);
+            } else {
+                console.error('Unexpected server response format');
+            }
+        } catch (error) {
+            setError(error);
+        }
+    }
 
     useEffect(() => {
         if (imageData) setLoading(false);
@@ -27,13 +42,17 @@ const Dashboard = () => {
                 prompt: prompt,
             }, { responseType: 'arraybuffer' });
 
-            const base64 = btoa(
-                new Uint8Array(response.data).reduce(
-                    (data, byte) => data + String.fromCharCode(byte),
-                    '',
-                ),
-            );
-            setImageData("data:;base64," + base64);
+            if (response.data instanceof ArrayBuffer) {
+                const base64 = btoa(
+                    new Uint8Array(response.data).reduce(
+                        (data, byte) => data + String.fromCharCode(byte),
+                        '',
+                    ),
+                );
+                setImageData("data:;base64," + base64);
+            } else {
+                console.error('Unexpected server response format');
+            }
         } catch (error) {
             setLoading(false);
             if (error.response && error.response.status === 503) {
@@ -80,11 +99,16 @@ const Dashboard = () => {
         <div>
             <Card>
                 <CardContent>
-                    <Input
+                {prompt!=''? <Input
                         value={prompt}
                         onChange={(e) => setPrompt(e.target.value)}
                         placeholder="Enter your company update here..."
-                    />
+                    /> :
+                     <Input
+                        value={prompt}
+                        onChange={(e) => setPrompt(e.target.value)}
+                        placeholder="Enter your company update here..."
+                    />}
                 </CardContent>
                 <CardFooter className="flex flex-col items-center">
                     <Button onClick={handleGenerateImage}>Generate</Button>
