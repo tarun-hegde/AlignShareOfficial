@@ -12,13 +12,13 @@
 *Tech Stack: NextJS, FastAPI, Python, Vercel*  
 AlignShare aims to streamline the content sharing process for companies by automating the generation and posting of updates across social media platforms. By leveraging real-time fetching of updates from company websites, an AI-powered content generator, and direct social media integration, AlignShare ensures that companies can effortlessly keep their audience informed and engaged with the latest news and announcements.
 
-For companies, AlignShare offers a centralized platform to manage their updates and social media content. By automating the creation of visually appealing content and enabling direct posting to multiple platforms, companies can save time, maintain consistency, and enhance their brand presence.
-
 ## Features
 
 - **Real-time Updates**: Fetch the latest updates about your company directly in AlignShare. Stay informed about important news, announcements, and events happening in your organization.
 - **AI-Powered Content Generation**: Create engaging content for your social media platforms with our AI-powered content generator using the latest updates fetched.
 - **Direct Social Media Posting**: Post the generated content directly to your social media platforms from AlignShare. Save time and effort by posting directly from our platform.
+- **Enhanced Engagement**: AI-generated content is designed to be visually appealing and engaging, increasing the likelihood of interaction and shares on social media, thus boosting overall visibility and engagement.
+- **User-Friendly Interface**: AlignShare offers an intuitive and easy-to-use interface, making it accessible for users of all technical levels to manage their content and social media posts efficiently.
 
 
 ## Usage
