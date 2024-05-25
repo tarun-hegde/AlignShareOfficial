@@ -2,7 +2,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.responses import StreamingResponse
 import requests
 import random
-from fastapi.middleware.cors import CORSMiddleware
+from starlette.middleware.cors import CORSMiddleware
 import uvicorn
 import os
 from schema import ImageCreate
@@ -14,13 +14,6 @@ from dotenv import load_dotenv
 load_dotenv()
 
 app = FastAPI()
-app.add_middleware(
-    CORSMiddleware, 
-    allow_credentials=True, 
-    allow_origins=["*"], 
-    allow_methods=["*"], 
-    allow_headers=["*"]
-)
 
 HF_TOKEN = os.getenv('HF_TOKEN')
 NEWS_API_KEY = os.getenv('NEWS_API_KEY')
@@ -153,3 +146,11 @@ def add_line_breaks(text:str):
         return new_text
     except AttributeError as e:
         raise Exception(f"Error occurred during line break addition: {e}")
+    
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
