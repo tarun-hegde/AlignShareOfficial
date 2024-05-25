@@ -25,10 +25,7 @@ const Steps = () => {
               Create an account
             </h3>
             <p className="text-sm leading-snug tracking-wide text-gray-900 text-opacity-100">
-              Lorem Ipsum is simply dummy text of the printing and typesetting
-              industry. Lorem Ipsum has been the industry's standard dummy text
-              ever since the 1500s, when an unknown printer took a galley of
-              type and scrambled it to make a type specimen book.
+           Creating an account and logging in will allow you to fetch your company updates, generate content for social media, and have a direct option to post. Enjoy the benefits of AlignShare by logging in now!
             </p>
           </div>
         </div>
@@ -41,10 +38,7 @@ const Steps = () => {
           <div className="order-1 bg-blue-600 rounded-lg shadow-xl w-5/12 px-6 py-4 animate-wiggle animate-thrice animate-duration-[5000ms] animate-ease-linear">
             <h3 className="mb-3 font-bold text-white text-xl">Fetch your company updates</h3>
             <p className="text-sm font-medium leading-snug tracking-wide text-white text-opacity-100">
-              Lorem Ipsum is simply dummy text of the printing and typesetting
-              industry. Lorem Ipsum has been the industry's standard dummy text
-              ever since the 1500s, when an unknown printer took a galley of
-              type and scrambled it to make a type specimen book.
+              Get the latest updates about your company directly in AlignShare. Stay informed about important news, announcements, and events happening in your organization.
             </p>
           </div>
         </div>
@@ -59,10 +53,8 @@ const Steps = () => {
               Generate content for social media
             </h3>
             <p className="text-sm leading-snug tracking-wide text-gray-900 text-opacity-100">
-              Lorem Ipsum is simply dummy text of the printing and typesetting
-              industry. Lorem Ipsum has been the industry's standard dummy text
-              ever since the 1500s, when an unknown printer took a galley of
-              type and scrambled it to make a type specimen book.
+              Create engaging content for your social media platforms with our ai-powered content generator using the latest updates fetched.
+
             </p>
           </div>
         </div>
@@ -75,10 +67,7 @@ const Steps = () => {
           <div className="order-1 bg-blue-600 rounded-lg shadow-xl w-5/12 px-6 py-4 animate-wiggle animate-thrice animate-duration-[5000ms] animate-ease-linear">
             <h3 className="mb-3 font-bold text-white text-xl">Direct option to post</h3>
             <p className="text-sm font-medium leading-snug tracking-wide text-white text-opacity-100">
-              Lorem Ipsum is simply dummy text of the printing and typesetting
-              industry. Lorem Ipsum has been the industry's standard dummy text
-              ever since the 1500s, when an unknown printer took a galley of
-              type and scrambled it to make a type specimen book.
+              Post the content generated directly to your social media platforms from AlignShare. Save time and effort by posting directly from our platform.
             </p>
           </div>
         </div>
