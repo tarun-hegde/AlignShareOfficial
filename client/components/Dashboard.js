@@ -11,13 +11,16 @@ const Dashboard = () => {
   const [prompt, setPrompt] = useState("");
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
+
   useEffect(() => {
     getPrompt();
   }, []);
 
   const getPrompt = async () => {
     try {
-      const response = await axios.get("http://0.0.0.0:8000/");
+      // use the API_BASE_URL environment variable to make a request to the server
+      // for local development, this will be http://0.0.0.0:8000/
+      const response = await axios.get(`${process.env.API_BASE_URL}/`);
       if (typeof response.data === "string") {
         setPrompt(response.data);
       } else {
@@ -31,18 +34,18 @@ const Dashboard = () => {
   useEffect(() => {
     if (imageData) setLoading(false);
   }, [imageData]);
-  
+
   const handleGenerateImage = async () => {
     setLoading(true);
     try {
       const response = await axios.post(
-        "http://0.0.0.0:8000/generate-image/",
+        `${process.env.API_BASE_URL}/generate-image/`,
         {
           prompt: prompt,
         },
         { responseType: "arraybuffer" }
       );
-  
+
       if (response.data instanceof ArrayBuffer) {
         const base64 = btoa(
           new Uint8Array(response.data).reduce(
@@ -52,7 +55,7 @@ const Dashboard = () => {
         );
         setTimeout(() => {
           setImageData("data:;base64," + base64);
-        }, 10000); // Introduce a delay of 10 seconds before updating the imageData
+        }, 10000);
       } else {
         console.error("Unexpected server response format");
       }
@@ -65,16 +68,16 @@ const Dashboard = () => {
       }
     }
   };
-  
+
   const handleShareOnSocialMedia = async (platform) => {
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
     const image = new Image();
     image.onload = () => {
       canvas.width = image.width;
       canvas.height = image.height;
       ctx.drawImage(image, 0, 0);
-      const dataURL = canvas.toDataURL('image/jpeg');
+      const dataURL = canvas.toDataURL("image/jpeg");
       switch (platform) {
         case "facebook":
           handleShareOnFacebook(dataURL);
@@ -91,19 +94,25 @@ const Dashboard = () => {
     };
     image.src = imageData;
   };
-  
+
   const handleShareOnFacebook = (dataURL) => {
-    const url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(dataURL)}`;
+    const url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
+      dataURL
+    )}`;
     window.open(url, "_blank");
   };
-  
+
   const handleShareOnTwitter = (dataURL) => {
-    const url = `https://twitter.com/intent/tweet?url=${encodeURIComponent(dataURL)}&text=Check out this image!`;
+    const url = `https://twitter.com/intent/tweet?url=${encodeURIComponent(
+      dataURL
+    )}&text=Check out this image!`;
     window.open(url, "_blank");
   };
-  
+
   const handleShareOnInstagram = (dataURL) => {
-    const url = `https://www.instagram.com/?caption=${encodeURIComponent("Check out this image!")}&url=${encodeURIComponent(dataURL)}`;
+    const url = `https://www.instagram.com/?caption=${encodeURIComponent(
+      "Check out this image!"
+    )}&url=${encodeURIComponent(dataURL)}`;
     window.open(url, "_blank");
   };
 
@@ -111,19 +120,11 @@ const Dashboard = () => {
     <div>
       <Card>
         <CardContent>
-          {prompt != "" ? (
-            <Input
-              value={prompt}
-              onChange={(e) => setPrompt(e.target.value)}
-              placeholder="Enter your company update here..."
-            />
-          ) : (
-            <Input
-              value={prompt}
-              onChange={(e) => setPrompt(e.target.value)}
-              placeholder="Enter your company update here..."
-            />
-          )}
+          <Input
+            value={prompt}
+            onChange={(e) => setPrompt(e.target.value)}
+            placeholder="Enter your company update here..."
+          />
         </CardContent>
         <CardFooter className="flex flex-col items-center">
           <Button onClick={handleGenerateImage}>Generate</Button>
