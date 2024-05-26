@@ -20,7 +20,7 @@ const Dashboard = () => {
     try {
       // use the API_BASE_URL environment variable to make a request to the server
       // for local development, this will be http://0.0.0.0:8000/
-      const response = await axios.get(`http://0.0.0.0:8000/`);
+      const response = await axios.get(`${process.env.API_BASE_URL}/`);
       if (typeof response.data === "string") {
         setPrompt(response.data);
       } else {
@@ -39,7 +39,7 @@ const Dashboard = () => {
     setLoading(true);
     try {
       const response = await axios.post(
-        `http://0.0.0.0:8000/generate-image/`,
+        `${process.env.API_BASE_URL}/generate-image/`,
         {
           prompt: prompt,
         },
