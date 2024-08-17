@@ -33,7 +33,7 @@ def read_root() -> str:
     random_company = random.choice(companies)
     print(random_company)
     selected_company = random_company
-    news_url=f"https://newsapi.org/v2/everything?q={selected_company}&from=2024-06-23&language=en&sortBy=publishedAt&apiKey={NEWS_API_KEY}"
+    news_url=f"https://newsapi.org/v2/everything?q={selected_company}&from=2024-08-13&language=en&sortBy=publishedAt&apiKey={NEWS_API_KEY}"
     response = requests.get(news_url)
     new_response=response.json()
     size=len(new_response['articles'])
@@ -44,7 +44,7 @@ def read_root() -> str:
     return data
 
 @app.post("/generate-image/")
-async def generate_image(request: ImageCreate):
+def generate_image(request: ImageCreate):
     print(request)
     payload={
         "inputs": f"Create a program that utilizes stable diffusion to fetch real-time updates as stated in {request.prompt}, dynamically generating visually appealing images representing these updates. The generated images should succinctly summarize the latest news and developments for the company, ready for seamless posting on their respective social media feeds."
