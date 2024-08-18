@@ -112,7 +112,6 @@ def text_summarizer(text: str):
         raise HTTPException(status_code=response.status_code, detail=response.json())
     
 def add_text_to_image(image: Image, text: str):
-    draw = ImageDraw.Draw(image)
     width, height = image.size
     text_position = (10, 10)  
     font_path = "./public/Sanseriffic.otf"  
