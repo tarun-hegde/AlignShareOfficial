@@ -117,7 +117,10 @@ def add_text_to_image(image: Image, text: str):
     text_position = (10, 10)  
     font_path = "./public/Sanseriffic.otf"  
     font_size = 55  
-    font = ImageFont.truetype(font_path, font_size)
+    try:
+      font = ImageFont.truetype(font_path, font_size)
+    except OSError:
+      raise HTTPException(status_code=500, detail="Font resource not found")
     formatted_text = add_line_breaks(text)
      # Determine the size of the text
     text_width, text_height =width, height
