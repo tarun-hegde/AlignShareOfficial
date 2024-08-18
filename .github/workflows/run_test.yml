@@ -8,6 +8,10 @@ jobs:
     strategy:
       matrix:
         python-version: ["3.10"]
+    env:  
+      HF_TOKEN: ${{ secrets.HF_TOKEN }}
+      NEWS_API_KEY: ${{ secrets.NEWS_API_KEY }}
+      API_BASE_URL: ${{ secrets.API_BASE_URL }}
 
     steps:
       - uses: actions/checkout@v3
@@ -23,7 +27,7 @@ jobs:
       - name: Lint with Ruff
         run: |
           pip install ruff
-          ruff --format=github --target-version=py310 .
+          ruff check --format=github --target-version=py310 .
         continue-on-error: true
       - name: Test with pytest
         env:
