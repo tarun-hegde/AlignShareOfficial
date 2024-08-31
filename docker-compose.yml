@@ -21,3 +21,12 @@ services:
     environment:
       - HF_TOKEN=${HF_TOKEN}
       - NEWS_API_KEY=${NEWS_API_KEY}
+
+  test:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    environment:
+      - HF_TOKEN=${HF_TOKEN}
+      - NEWS_API_KEY=${NEWS_API_KEY}
+    command: ["pytest", "--disable-warnings", "-v"]
