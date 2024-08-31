@@ -22,28 +22,29 @@ const Dashboard = () => {
     insta_post: ""
   });
 
-  useEffect(() => {
-    getPrompt();
-  }, []);
+
 
   const getPrompt = async () => {
+    // use the API_BASE_URL environment variable to make a request to the server
+    // for local development, this will be http://0.0.0.0:8000/automate-prompt/
+    const apiUrl = `${process.env.API_BASE_URL}/automate-prompt/`;
     try {
-      // use the API_BASE_URL environment variable to make a request to the server
-      // for local development, this will be http://0.0.0.0:8000/
-      const response = await axios.get(`${process.env.API_BASE_URL}/`);
+      const response = await axios.get(apiUrl);
       if (typeof response.data === "string") {
         setPrompt(response.data);
       } else {
         console.error("Unexpected server response format");
       }
     } catch (error) {
-      setError(error);
+      console.error("Error fetching prompt:", error);
+      setError({
+        message: error.message,
+        status: error.response ? error.response.status : "Unknown",
+        data: error.response ? error.response.data : "No response data"
+      });
     }
   };
 
-  useEffect(() => {
-    if (imageData) setLoading(false);
-  }, [imageData]);
 
   const handleGenerateImage = async () => {
     setLoading(true);
@@ -55,7 +56,7 @@ const Dashboard = () => {
         },
         { responseType: "arraybuffer" }
       );
-
+  
       if (response.data instanceof ArrayBuffer) {
         const base64 = btoa(
           new Uint8Array(response.data).reduce(
@@ -70,12 +71,14 @@ const Dashboard = () => {
         console.error("Unexpected server response format");
       }
     } catch (error) {
+      console.error("Error generating image:", error);
+      setError({
+        message: error.message,
+        status: error.response ? error.response.status : "Unknown",
+        data: error.response ? error.response.data : "No response data"
+      });
+    } finally {
       setLoading(false);
-      if (error.response && error.response.status === 503) {
-        console.error("Service unavailable. Please try again later.");
-      } else {
-        setError(error);
-      }
     }
   };
 
@@ -173,7 +176,9 @@ const Dashboard = () => {
   return (
     <div>
       <Card>
+      
       <CardContent>
+  
           <Input
             value={text}
             onChange={(e) => setText(e.target.value)}
@@ -230,7 +235,12 @@ const Dashboard = () => {
             
           )}
          
-          {error && <p>Error: {JSON.stringify(error)}</p>}
+         {error && (
+  <p style={{ color: "white" }}>
+    Error: {error.message} (Status: {error.status})<br />
+    {error.data && <pre>{JSON.stringify(error.data, null, 2)}</pre>}
+  </p>
+)}
         </CardFooter>
         <CardContent>
           <Input
@@ -240,6 +250,9 @@ const Dashboard = () => {
           />
         </CardContent>
         <CardFooter className="flex flex-col items-center">
+        <Button onClick={getPrompt} style={{marginBottom: "5px"}} >
+            Get Prompt
+          </Button>
           <Button onClick={handleGenerateImage}>Generate</Button>
           {loading && (
             <p style={{ color: "white", marginTop: "12px" }}>

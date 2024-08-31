@@ -4,6 +4,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.responses import StreamingResponse
 import requests
 import random
+import time
 from starlette.middleware.cors import CORSMiddleware
 import os
 from schema import ImageCreate, PostRequest
@@ -35,7 +36,7 @@ client = InferenceClient(
 
 
 
-@app.get("/")
+@app.get("/automate-prompt/")
 def read_root() -> str:
     companies = [
         "Apple",
@@ -63,7 +64,7 @@ def read_root() -> str:
     logger.info(f"Selected company: {random_company}")
     selected_company = random_company
 
-    news_url = f"https://newsapi.org/v2/everything?q={selected_company}&from=2024-08-13&language=en&sortBy=publishedAt&apiKey={NEWS_API_KEY}"
+    news_url = f"https://newsapi.org/v2/everything?q={selected_company}&from=2024-08-21&language=en&sortBy=publishedAt&apiKey={NEWS_API_KEY}"
 
     response = requests.get(news_url)
     new_response = response.json()
@@ -74,6 +75,16 @@ def read_root() -> str:
         data = ""
     return data
 
+def make_request_with_retries(api_url, headers, payload, max_retries=3, delay=5):
+    for attempt in range(max_retries):
+        response = requests.post(api_url, headers=headers, json=payload)
+        if response.status_code == 503:
+            print(f"Attempt {attempt + 1} failed with 503. Retrying in {delay} seconds...")
+            time.sleep(delay)
+        else:
+            return response
+    # If all retries fail, raise an exception or handle it as needed
+    raise Exception("Max retries exceeded with 503 Service Unavailable")
 
 @app.post("/generate-image/")
 def generate_image(request: ImageCreate):
@@ -83,7 +94,9 @@ def generate_image(request: ImageCreate):
     }
     logger.info(f"Payload for API: {payload}")
 
-    response = requests.post(api_url, headers=headers, json=payload)
+
+
+    response = make_request_with_retries(api_url, headers, payload)
     logger.info(f"Response status code: {response.status_code}")
 
     if response.status_code == 200:
