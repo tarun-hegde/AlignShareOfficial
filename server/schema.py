@@ -1,6 +1,7 @@
 import pydantic as pydantic
 from typing import Optional
 
+
 class PromptBase(pydantic.BaseModel):
     seed: Optional[int] = 992446758
     num_inference_steps: int = 10
@@ -9,6 +10,7 @@ class PromptBase(pydantic.BaseModel):
 
 class ImageCreate(PromptBase):
     prompt: str
+
 
 class PostRequest(pydantic.BaseModel):
     text: str
