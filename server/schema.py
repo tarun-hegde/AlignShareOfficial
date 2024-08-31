@@ -9,3 +9,8 @@ class PromptBase(pydantic.BaseModel):
 
 class ImageCreate(PromptBase):
     prompt: str
+
+class PostRequest(pydantic.BaseModel):
+    text: str
+    name: str
+    industry: str

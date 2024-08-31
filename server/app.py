@@ -1,15 +1,17 @@
 import logging
+from huggingface_hub import InferenceClient
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import StreamingResponse
 import requests
 import random
 from starlette.middleware.cors import CORSMiddleware
 import os
-from schema import ImageCreate
+from schema import ImageCreate, PostRequest
 from json.decoder import JSONDecodeError
 from PIL import Image, ImageDraw, ImageFont
 from io import BytesIO
 from dotenv import load_dotenv
+
 
 load_dotenv()
 
@@ -23,8 +25,14 @@ HF_TOKEN = os.getenv("HF_TOKEN")
 NEWS_API_KEY = os.getenv("NEWS_API_KEY")
 api_url = "https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-xl-base-1.0"
 summarizer_url = "https://api-inference.huggingface.co/models/utrobinmv/t5_summary_en_ru_zh_base_2048"
-
 headers = {"Authorization": f"Bearer {HF_TOKEN}"}
+client = InferenceClient(
+    model="mistralai/Mistral-7B-Instruct-v0.3",
+    token=HF_TOKEN,
+    headers=headers,
+)
+
+
 
 
 @app.get("/")
@@ -162,7 +170,7 @@ def text_summarizer(text: str):
 def add_text_to_image(image: Image, text: str):
     width, height = image.size
     text_position = (10, 10)
-    font_path = "server/public/Sanseriffic.otf"
+    font_path = "./public/Sanseriffic.otf"
     font_size = 55
     try:
         font = ImageFont.truetype(font_path, font_size)
@@ -201,6 +209,94 @@ def add_line_breaks(text: str):
     except AttributeError as e:
         logger.error(f"Error occurred during line break addition: {e}")
         raise Exception(f"Error occurred during line break addition: {e}")
+
+@app.post("/generate-posts/")
+def generate_posts(request: PostRequest)  :
+
+    if not request.text.strip():
+        raise HTTPException(status_code=422, detail="Text field cannot be empty")
+    if not request.name.strip():
+        raise HTTPException(status_code=422, detail="Name field cannot be empty")
+    if not request.industry.strip():
+        raise HTTPException(status_code=422, detail="Industry field cannot be empty")
+
+    linkedin_post = generate_linkedin_post(request.text, request.name, request.industry)
+    twitter_post = generate_twitter_post(request.text, request.name, request.industry)
+    insta_post = generate_insta_post(request.text, request.name, request.industry)
+    
+    return {
+        "linkedin_post": linkedin_post,
+        "twitter_post": twitter_post,
+        "insta_post": insta_post,
+    }
+
+def generate_linkedin_post(text: str, name: str, industry: str):
+    prompt = (
+        f"Write a LinkedIn post for {name}, a company in the {industry} industry. "
+        f"The post should be professional, engaging, and informative. "
+        f"Highlight the latest news and developments specified in the following text: {text}. "
+        f"Include hashtags"
+    )
+    
+    messages = [{"role": "user", "content": prompt}]
+    
+    try:
+        response = client.chat_completion(
+            messages=messages,
+            max_tokens=500,
+            stream=False,
+        )
+        generated_text = response.choices[0].message.content
+        print(generated_text)
+        return generated_text
+    except Exception as e:
+        print(f"Error generating LinkedIn post: {e}")
+        raise
+
+def generate_twitter_post(text: str, name: str, industry: str):
+    prompt = (
+        f"Write a tweet for {name}, a company in the {industry} industry. "
+        f"Highlight the latest news and developments specified in the following text: {text}. "
+        f"Include hashtags based on name and industry"
+    )
+    
+    messages = [{"role": "user", "content": prompt}]
+    
+    try:
+        response = client.chat_completion(
+            messages=messages,
+            max_tokens=500,
+            stream=False,
+        )
+        generated_text = response.choices[0].message.content
+        print(generated_text)
+        return generated_text
+    except Exception as e:
+        print(f"Error generating LinkedIn post: {e}")
+        raise
+
+def generate_insta_post(text: str, name: str, industry: str):
+    prompt = (
+        f"Write an Instagram post for {name}, a company in the {industry} industry. "
+        f"The post should be engaging, and informative. "
+        f"Highlight the latest news and developments specified in the following text: {text}. "
+        f"Include hashtags based on name and industry"
+    )
+    
+    messages = [{"role": "user", "content": prompt}]
+    
+    try:
+        response = client.chat_completion(
+            messages=messages,
+            max_tokens=500,
+            stream=False,
+        )
+        generated_text = response.choices[0].message.content
+        print(generated_text)
+        return generated_text
+    except Exception as e:
+        print(f"Error generating LinkedIn post: {e}")
+        raise
 
 
 app.add_middleware(

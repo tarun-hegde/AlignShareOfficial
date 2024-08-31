@@ -11,6 +11,16 @@ const Dashboard = () => {
   const [prompt, setPrompt] = useState("");
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [loading2, setLoading2] = useState(false);
+  const [error2, setError2] = useState(null);
+  const [text, setText] = useState("");
+  const [companyName, setCompanyName] = useState("");
+  const [industry, setIndustry] = useState("");
+  const [generatedPosts, setGeneratedPosts] = useState({
+    linkedin_post: "",
+    twitter_post: "",
+    insta_post: ""
+  });
 
   useEffect(() => {
     getPrompt();
@@ -69,6 +79,50 @@ const Dashboard = () => {
     }
   };
 
+  const handleGeneratePosts = async () => {
+    if (!text.trim()) {
+      setError2("Text field cannot be empty");
+      return;
+    }
+    if (!companyName.trim()) {
+      setError2("Name field cannot be empty");
+      return;
+    }
+    if (!industry.trim()) {
+      setError2("Industry field cannot be empty");
+      return;
+    }
+
+    setLoading2(true);
+    setError2(null);
+    try {
+      const response = await axios.post(`${process.env.API_BASE_URL}/generate-posts/`,
+        {
+        text: text,
+        name: companyName,
+        industry: industry
+      },
+      {responseType: "json"}
+    );
+      console.log(response.data)
+      const formattedData = {
+        linkedin_post: response.data.linkedin_post.replace(/\n/g, '<br />'),
+        twitter_post: response.data.twitter_post.replace(/\n/g, '<br />'),
+        insta_post: response.data.insta_post.replace(/\n/g, '<br />')
+      };
+      setGeneratedPosts(formattedData);
+    } catch (error2) {
+      setLoading2(false);
+      if (error2.response && error2.response.status === 503) {
+        console.error("Service unavailable. Please try again later.");
+      } else {
+        setError2(error2);
+      }
+    } finally {
+      setLoading2(false);
+    }
+  };
+
   const handleShareOnSocialMedia = async (platform) => {
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d");
@@ -119,6 +173,65 @@ const Dashboard = () => {
   return (
     <div>
       <Card>
+      <CardContent>
+          <Input
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            placeholder="Enter your company update here..."
+            margin="normal"
+          />
+          <Input
+            value={companyName}
+            onChange={(e) => setCompanyName(e.target.value)}
+            placeholder="Enter your company name..."
+            margin="normal"
+          />
+          <Input
+            value={industry}
+            onChange={(e) => setIndustry(e.target.value)}
+            placeholder="Enter your industry..."
+            margin="normal"
+          />
+        </CardContent>
+
+        <CardFooter className="flex flex-col items-center">
+          <Button onClick={handleGeneratePosts} style={{ marginTop: '10px' }}>
+            Generate Posts
+          </Button>
+          {loading2 && (
+            <p style={{ color: "white", marginTop: "12px" }}>
+              Please wait for a while, your post is being generated...
+            </p>
+          )}
+         
+        {generatedPosts.linkedin_post && !loading2 && (
+          
+            <div style={{ marginTop: '20px', color: 'white' }}>
+               <Card>
+               <CardContent style={{ marginTop: '20px', color: 'white' }}>
+              <h3>Generated LinkedIn Post:</h3>
+              <p dangerouslySetInnerHTML={{ __html: generatedPosts.linkedin_post }} />
+              </CardContent>
+              </Card>
+              <Card>
+              <CardContent style={{ marginTop: '20px', color: 'white' }}>
+              <h3>Generated Twitter Post:</h3>
+              <p dangerouslySetInnerHTML={{ __html: generatedPosts.twitter_post }} />
+              </CardContent>
+            </Card>
+            <Card>
+            <CardContent style={{ marginTop: '20px', color: 'white' }}>
+              <h3>Generated Instagram Post:</h3>
+              <p dangerouslySetInnerHTML={{ __html: generatedPosts.insta_post }} />
+        
+            </CardContent>
+            </Card>
+            </div>
+            
+          )}
+         
+          {error && <p>Error: {JSON.stringify(error)}</p>}
+        </CardFooter>
         <CardContent>
           <Input
             value={prompt}
