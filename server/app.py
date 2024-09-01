@@ -1,18 +1,19 @@
 import logging
-from huggingface_hub import InferenceClient
-from fastapi import FastAPI, HTTPException
-from fastapi.responses import StreamingResponse
-import requests
+import os
 import random
 import time
-from starlette.middleware.cors import CORSMiddleware
-import os
-from schema import ImageCreate, PostRequest
-from json.decoder import JSONDecodeError
-from PIL import Image, ImageDraw, ImageFont
 from io import BytesIO
-from dotenv import load_dotenv
+from json.decoder import JSONDecodeError
 
+import requests
+from dotenv import load_dotenv
+from fastapi import FastAPI, HTTPException
+from fastapi.responses import StreamingResponse
+from huggingface_hub import InferenceClient
+from PIL import Image, ImageDraw, ImageFont
+from starlette.middleware.cors import CORSMiddleware
+
+from schema import ImageCreate, PostRequest
 
 load_dotenv()
 
@@ -32,8 +33,6 @@ client = InferenceClient(
     token=HF_TOKEN,
     headers=headers,
 )
-
-
 
 
 @app.get("/automate-prompt/")
@@ -75,16 +74,20 @@ def read_root() -> str:
         data = ""
     return data
 
+
 def make_request_with_retries(api_url, headers, payload, max_retries=3, delay=5):
     for attempt in range(max_retries):
         response = requests.post(api_url, headers=headers, json=payload)
         if response.status_code == 503:
-            print(f"Attempt {attempt + 1} failed with 503. Retrying in {delay} seconds...")
+            print(
+                f"Attempt {attempt + 1} failed with 503. Retrying in {delay} seconds..."
+            )
             time.sleep(delay)
         else:
             return response
     # If all retries fail, raise an exception or handle it as needed
     raise Exception("Max retries exceeded with 503 Service Unavailable")
+
 
 @app.post("/generate-image/")
 def generate_image(request: ImageCreate):
@@ -93,8 +96,6 @@ def generate_image(request: ImageCreate):
         "inputs": f"Create a program that utilizes stable diffusion to fetch real-time updates as stated in {request.prompt}, dynamically generating visually appealing images representing these updates. The generated images should succinctly summarize the latest news and developments for the company, ready for seamless posting on their respective social media feeds."
     }
     logger.info(f"Payload for API: {payload}")
-
-
 
     response = make_request_with_retries(api_url, headers, payload)
     logger.info(f"Response status code: {response.status_code}")
@@ -176,7 +177,9 @@ def text_summarizer(text: str):
                 detail="Failed to decode the image data from the response",
             )
     else:
-        logger.error(f"Summarizer API request failed with status code: {response.status_code}")
+        logger.error(
+            f"Summarizer API request failed with status code: {response.status_code}"
+        )
         raise HTTPException(status_code=response.status_code, detail=response.json())
 
 
@@ -224,8 +227,9 @@ def add_line_breaks(text: str):
         logger.error(f"Error occurred during line break addition: {e}")
         raise Exception(f"Error occurred during line break addition: {e}")
 
+
 @app.post("/generate-posts/")
-def generate_posts(request: PostRequest)  :
+def generate_posts(request: PostRequest):
 
     if not request.text.strip():
         raise HTTPException(status_code=422, detail="Text field cannot be empty")
@@ -237,12 +241,13 @@ def generate_posts(request: PostRequest)  :
     linkedin_post = generate_linkedin_post(request.text, request.name, request.industry)
     twitter_post = generate_twitter_post(request.text, request.name, request.industry)
     insta_post = generate_insta_post(request.text, request.name, request.industry)
-    
+
     return {
         "linkedin_post": linkedin_post,
         "twitter_post": twitter_post,
         "insta_post": insta_post,
     }
+
 
 def generate_linkedin_post(text: str, name: str, industry: str):
     prompt = (
@@ -251,9 +256,9 @@ def generate_linkedin_post(text: str, name: str, industry: str):
         f"Highlight the latest news and developments specified in the following text: {text}. "
         f"Include hashtags"
     )
-    
+
     messages = [{"role": "user", "content": prompt}]
-    
+
     try:
         response = client.chat_completion(
             messages=messages,
@@ -267,15 +272,16 @@ def generate_linkedin_post(text: str, name: str, industry: str):
         print(f"Error generating LinkedIn post: {e}")
         raise
 
+
 def generate_twitter_post(text: str, name: str, industry: str):
     prompt = (
         f"Write a tweet for {name}, a company in the {industry} industry. "
         f"Highlight the latest news and developments specified in the following text: {text}. "
         f"Include hashtags based on name and industry"
     )
-    
+
     messages = [{"role": "user", "content": prompt}]
-    
+
     try:
         response = client.chat_completion(
             messages=messages,
@@ -288,6 +294,7 @@ def generate_twitter_post(text: str, name: str, industry: str):
     except Exception as e:
         print(f"Error generating LinkedIn post: {e}")
         raise
+
 
 def generate_insta_post(text: str, name: str, industry: str):
     prompt = (
@@ -296,9 +303,9 @@ def generate_insta_post(text: str, name: str, industry: str):
         f"Highlight the latest news and developments specified in the following text: {text}. "
         f"Include hashtags based on name and industry"
     )
-    
+
     messages = [{"role": "user", "content": prompt}]
-    
+
     try:
         response = client.chat_completion(
             messages=messages,

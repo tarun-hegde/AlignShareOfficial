@@ -1,6 +1,7 @@
 import pytest
 from fastapi.testclient import TestClient
-from app import app, HF_TOKEN
+
+from app import HF_TOKEN, app
 
 client = TestClient(app)
 
@@ -9,9 +10,10 @@ PAYLOADS = {
     "posts": {
         "text": "We aim to streamline the content sharing process for companies by automating the generation and posting of updates across social media platforms. By leveraging real-time fetching of updates from company websites, an AI-powered content generator, and direct social media integration, AlignShare ensures that companies can effortlessly keep their audience informed and engaged with the latest news and announcements.",
         "name": "AlignShare",
-        "industry": "Technology"
-    }
+        "industry": "Technology",
+    },
 }
+
 
 def test_read_root():
     """Test the root endpoint."""
@@ -22,7 +24,7 @@ def test_read_root():
 
 def test_generate_image_successful():
     """Test the generate-image endpoint."""
-    
+
     if HF_TOKEN:  # Ensure the HF_TOKEN is set
         response = client.post("/generate-image/", json=PAYLOADS["generate_image"])
         assert response.status_code == 200
@@ -45,8 +47,9 @@ def test_generate_image_invalid_request():
 def test_add_borders():
     """Test the add_borders function."""
 
-    from app import add_borders
     from PIL import Image
+
+    from app import add_borders
 
     # Create a simple image
     image = Image.new("RGB", (100, 100), color=(73, 109, 137))
@@ -69,36 +72,52 @@ def test_text_summarizer():
     else:
         pytest.skip("HF_TOKEN is not set, skipping this test.")
 
+
 def test_generate_linkedin_post():
     """Test the generate_linkedin_post function."""
-    
 
     if HF_TOKEN:  # Ensure the HF_TOKEN is set
         from app import generate_linkedin_post
-        post = generate_linkedin_post(PAYLOADS["posts"]["text"], PAYLOADS["posts"]["name"] , PAYLOADS["posts"]["industry"])
+
+        post = generate_linkedin_post(
+            PAYLOADS["posts"]["text"],
+            PAYLOADS["posts"]["name"],
+            PAYLOADS["posts"]["industry"],
+        )
 
         assert isinstance(post, str)
     else:
         pytest.skip("HF_TOKEN is not set, skipping this test.")
+
 
 def test_generate_twitter_post():
     """Test the generate_twitter_post function."""
 
     if HF_TOKEN:  # Ensure the HF_TOKEN is set
         from app import generate_twitter_post
-        post = generate_twitter_post(PAYLOADS["posts"]["text"], PAYLOADS["posts"]["name"] , PAYLOADS["posts"]["industry"])
+
+        post = generate_twitter_post(
+            PAYLOADS["posts"]["text"],
+            PAYLOADS["posts"]["name"],
+            PAYLOADS["posts"]["industry"],
+        )
 
         assert isinstance(post, str)
     else:
         pytest.skip("HF_TOKEN is not set, skipping this test.")
 
+
 def test_generate_instagram_post():
     """Test the generate_insta_post function."""
-    
 
     if HF_TOKEN:  # Ensure the HF_TOKEN is set
         from app import generate_insta_post
-        post = generate_insta_post(PAYLOADS["posts"]["text"], PAYLOADS["posts"]["name"] , PAYLOADS["posts"]["industry"])
+
+        post = generate_insta_post(
+            PAYLOADS["posts"]["text"],
+            PAYLOADS["posts"]["name"],
+            PAYLOADS["posts"]["industry"],
+        )
 
         assert isinstance(post, str)
     else:

@@ -1,5 +1,6 @@
-import pydantic as pydantic
 from typing import Optional
+
+import pydantic as pydantic
 
 
 class PromptBase(pydantic.BaseModel):
