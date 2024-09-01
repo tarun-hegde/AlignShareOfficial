@@ -193,7 +193,7 @@ def add_text_to_image(image: Image, text: str):
     width, height = image.size
     text_position = (10, 10)
     # It should be font_path = "./public/Sanseriffic.otf" while running in local
-    font_path = "server/public/Sanseriffic.otf"
+    font_path = "./public/Sanseriffic.otf"
     font_size = 55
     try:
         font = ImageFont.truetype(font_path, font_size)
