@@ -70,31 +70,44 @@ const Dashboard = () => {
   };
 
   // Function to share on social media
-  const shareOnSocialMedia = (platform, dataUrl) => {
-    const canvas = document.createElement("canvas");
-    const ctx = canvas.getContext("2d");
-    const image = new Image();
+  const shareOnSocialMedia = (platform, textContent) => {
+    // const canvas = document.createElement('canvas');
+    // const ctx = canvas.getContext('2d');
+    // const image = new Image();
 
-    image.onload = () => {
-      canvas.width = image.width;
-      canvas.height = image.height;
-      ctx.drawImage(image, 0, 0);
-      const imageBase64 = canvas.toDataURL("image/png");
+    // image.onload = () => {
+    //   canvas.width = image.width;
+    //   canvas.height = image.height;
+    //   ctx.drawImage(image, 0, 0);
+    //   const imageBase64 = canvas.toDataURL('image/png');
 
-      let url = "";
-      const text = encodeURIComponent("Check out this image!");
-      if (platform === "twitter") {
-        url = `https://twitter.com/intent/tweet?url=${imageBase64}&text=${text}`;
-      } else if (platform === "instagram") {
-        alert(
-          "Instagram does not support direct posting via URL. Please download and share manually.",
-        );
-        return;
-      }
-      window.open(url, "_blank");
-    };
+    //   let url = '';
+    //   const text = encodeURIComponent('Check out this image!');
+    //   if (platform === 'twitter') {
+    //     url = `https://twitter.com/intent/tweet?text=${text}`;
+    //   } else if (platform === 'instagram') {
+    //     alert('Instagram does not support direct posting via URL. Please download and share manually.');
+    //     return;
+    //   }
+    //   window.open(url, '_blank');
+    // };
 
-    image.src = dataUrl;
+    // image.src = dataUrl;
+    let url = "";
+    const text = encodeURIComponent(textContent);
+
+    if (platform === "twitter") {
+      url = `https://twitter.com/intent/tweet?text=${text}`;
+    } else if (platform === "linkedin") {
+      url = `https://www.linkedin.com/sharing/share-offsite/`;
+    } else if (platform === "instagram") {
+      alert(
+        "Instagram does not support direct posting via URL. Please copy the text and share manually.",
+      );
+      return;
+    }
+
+    window.open(url, "_blank");
   };
 
   const handleGenerateImage = async () => {
@@ -223,6 +236,14 @@ const Dashboard = () => {
                     __html: generatedPosts.linkedin_post,
                   }}
                 />
+                <button
+                  onClick={() =>
+                    navigator.clipboard.writeText(generatedPosts.linkedin_post)
+                  }
+                  className="mt-1 px-2 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md shadow-md"
+                >
+                  Copy
+                </button>
               </div>
               <div className="mb-4">
                 <h3 className="text-lg font-semibold text-gray-800">
@@ -234,6 +255,14 @@ const Dashboard = () => {
                     __html: generatedPosts.twitter_post,
                   }}
                 />
+                <button
+                  onClick={() =>
+                    navigator.clipboard.writeText(generatedPosts.twitter_post)
+                  }
+                  className="mt-1 px-2 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md shadow-md"
+                >
+                  Copy
+                </button>
               </div>
               <div className="mb-4">
                 <h3 className="text-lg font-semibold text-gray-800">
@@ -245,6 +274,14 @@ const Dashboard = () => {
                     __html: generatedPosts.insta_post,
                   }}
                 />
+                <button
+                  onClick={() =>
+                    navigator.clipboard.writeText(generatedPosts.insta_post)
+                  }
+                  className="mt-1 px-2 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md shadow-md"
+                >
+                  Copy{" "}
+                </button>
               </div>
 
               {/* Social Media Sharing Buttons */}
@@ -265,6 +302,24 @@ const Dashboard = () => {
                     <path d="M23.954 4.569c-.885.392-1.83.656-2.825.775 1.014-.611 1.794-1.574 2.163-2.724-.951.564-2.005.974-3.127 1.195-.897-.959-2.173-1.558-3.591-1.558-2.717 0-4.918 2.201-4.918 4.917 0 .385.045.761.126 1.122C7.688 8.094 4.066 6.13 1.64 3.161c-.423.722-.666 1.561-.666 2.475 0 1.709.87 3.213 2.188 4.096-.806-.025-1.566-.247-2.229-.616v.061c0 2.386 1.697 4.374 3.946 4.827-.413.111-.848.171-1.296.171-.316 0-.623-.03-.927-.085.624 1.951 2.445 3.374 4.604 3.413-1.685 1.321-3.808 2.108-6.102 2.108-.395 0-.786-.023-1.17-.067 2.179 1.397 4.768 2.213 7.557 2.213 9.054 0 14.004-7.498 14.004-14.004 0-.213 0-.425-.015-.637.961-.695 1.797-1.562 2.457-2.549z" />
                   </svg>
                   Twitter
+                </Button>
+
+                {/* Share on LinkedIn */}
+                <Button
+                  onClick={() =>
+                    shareOnSocialMedia("linkedin", generatedPosts.linkedin_post)
+                  }
+                  className="px-4 py-2 bg-blue-700 hover:bg-blue-800 text-white rounded-md shadow-md flex items-center"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5 mr-2"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                  >
+                    <path d="M22.23 0H1.77C.79 0 0 .77 0 1.72v20.56C0 23.23.79 24 1.77 24h20.46c.98 0 1.77-.77 1.77-1.72V1.72C24 .77 23.21 0 22.23 0zM7.12 20.45H3.56V9h3.56v11.45zM5.34 7.58c-1.14 0-2.06-.92-2.06-2.06s.92-2.06 2.06-2.06 2.06.92 2.06 2.06-.92 2.06-2.06 2.06zM20.45 20.45h-3.56v-5.6c0-1.34-.03-3.06-1.87-3.06-1.87 0-2.16 1.46-2.16 2.97v5.69h-3.56V9h3.42v1.56h.05c.48-.91 1.66-1.87 3.42-1.87 3.66 0 4.34 2.41 4.34 5.54v6.22z" />
+                  </svg>
+                  LinkedIn
                 </Button>
 
                 {/* Share on Instagram */}
@@ -352,38 +407,6 @@ const Dashboard = () => {
                     />
                   </svg>
                   Download
-                </Button>
-
-                {/* Share on Twitter */}
-                <Button
-                  onClick={() => shareOnSocialMedia("twitter", imageData)}
-                  className="px-4 py-2 bg-blue-400 hover:bg-blue-500 text-white rounded-md shadow-md flex items-center"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5 mr-2"
-                    viewBox="0 0 24 24"
-                    fill="currentColor"
-                  >
-                    <path d="M23.954 4.569c-.885.392-1.83.656-2.825.775 1.014-.611 1.794-1.574 2.163-2.724-.951.564-2.005.974-3.127 1.195-.897-.959-2.173-1.558-3.591-1.558-2.717 0-4.918 2.201-4.918 4.917 0 .385.045.761.126 1.122C7.688 8.094 4.066 6.13 1.64 3.161c-.423.722-.666 1.561-.666 2.475 0 1.709.87 3.213 2.188 4.096-.806-.025-1.566-.247-2.229-.616v.061c0 2.386 1.697 4.374 3.946 4.827-.413.111-.848.171-1.296.171-.316 0-.623-.03-.927-.085.624 1.951 2.445 3.374 4.604 3.413-1.685 1.321-3.808 2.108-6.102 2.108-.395 0-.786-.023-1.17-.067 2.179 1.397 4.768 2.213 7.557 2.213 9.054 0 14.004-7.498 14.004-14.004 0-.213 0-.425-.015-.637.961-.695 1.797-1.562 2.457-2.549z" />
-                  </svg>
-                  Twitter
-                </Button>
-
-                {/* Share on Instagram */}
-                <Button
-                  onClick={() => shareOnSocialMedia("instagram", imageData)}
-                  className="px-4 py-2 bg-pink-500 hover:bg-pink-600 text-white rounded-md shadow-md flex items-center"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5 mr-2"
-                    viewBox="0 0 24 24"
-                    fill="currentColor"
-                  >
-                    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 1.17.057 1.97.247 2.428.414a4.92 4.92 0 011.775 1.001 4.92 4.92 0 011.001 1.775c.167.458.357 1.258.414 2.428.058 1.266.07 1.646.07 4.85s-.012 3.584-.07 4.85c-.057 1.17-.247 1.97-.414 2.428a4.92 4.92 0 01-1.001 1.775 4.92 4.92 0 01-1.775 1.001c-.458.167-1.258.357-2.428.414-1.266.058-1.646.07-4.85.07s-3.584-.012-4.85-.07c-1.17-.057-1.97-.247-2.428-.414a4.92 4.92 0 01-1.775-1.001 4.92 4.92 0 01-1.001-1.775c-.167-.458-.357-1.258-.414-2.428C2.175 15.584 2.163 15.204 2.163 12s.012-3.584.07-4.85c.057-1.17.247-1.97.414-2.428a4.92 4.92 0 011.001-1.775 4.92 4.92 0 011.775-1.001c.458-.167 1.258-.357 2.428-.414C8.416 2.175 8.796 2.163 12 2.163zm0-2.163c-3.259 0-3.667.014-4.947.072-1.281.058-2.162.27-2.924.575a6.92 6.92 0 00-2.608 1.643A6.92 6.92 0 001.663 4.95c-.305.762-.517 1.643-.575 2.924-.058 1.281-.072 1.688-.072 4.947s.014 3.667.072 4.947c.058 1.281.27 2.162.575 2.924a6.92 6.92 0 001.643 2.608 6.92 6.92 0 002.608 1.643c.762.305 1.643.517 2.924.575 1.281.058 1.688.072 4.947.072s3.667-.014 4.947-.072c1.281-.058 2.162-.27 2.924-.575a6.92 6.92 0 002.608-1.643 6.92 6.92 0 001.643-2.608c.305-.762.517-1.643.575-2.924.058-1.281.072-1.688.072-4.947s-.014-3.667-.072-4.947c-.058-1.281-.27-2.162-.575-2.924a6.92 6.92 0 00-1.643-2.608 6.92 6.92 0 00-2.608-1.643c-.762-.305-1.643-.517-2.924-.575C15.667.014 15.259 0 12 0zM12 5.838c-3.403 0-6.162 2.759-6.162 6.162 0 3.403 2.759 6.162 6.162 6.162 3.403 0 6.162-2.759 6.162-6.162 0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.208 0-4-1.792-4-4s1.792-4 4-4 4 1.792 4 4-1.792 4-4 4zm6.406-10.845c-.796 0-1.444.648-1.444 1.444s.648 1.444 1.444 1.444 1.444-.648 1.444-1.444-.648-1.444-1.444-1.444z" />
-                  </svg>
-                  Instagram
                 </Button>
               </div>
             </div>

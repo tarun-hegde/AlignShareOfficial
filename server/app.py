@@ -37,6 +37,7 @@ client = InferenceClient(
 
 @app.get("/automate-prompt/")
 def read_root() -> str:
+    """Function to return a prompt for the user to automate the process"""
     companies = [
         "Apple",
         "Google",
@@ -76,6 +77,7 @@ def read_root() -> str:
 
 
 def make_request_with_retries(api_url, headers, payload, max_retries=3, delay=5):
+    """Make a request to the API with retries in case of 503 Service Unavailable."""
     for attempt in range(max_retries):
         response = requests.post(api_url, headers=headers, json=payload)
         if response.status_code == 503:
@@ -91,6 +93,7 @@ def make_request_with_retries(api_url, headers, payload, max_retries=3, delay=5)
 
 @app.post("/generate-image/")
 def generate_image(request: ImageCreate):
+    """Generate an image based on the provided prompt."""
     logger.info(f"Received request: {request}")
     payload = {
         "inputs": f"Create a program that utilizes stable diffusion to fetch real-time updates as stated in {request.prompt}, dynamically generating visually appealing images representing these updates. The generated images should succinctly summarize the latest news and developments for the company, ready for seamless posting on their respective social media feeds."
@@ -138,6 +141,7 @@ def generate_image(request: ImageCreate):
 
 
 def add_borders(image: Image):
+    """Add borders to the image."""
     border_color = (10, 30, 40)
     border_width = 10
     width, height = image.size
@@ -158,6 +162,7 @@ def add_borders(image: Image):
 
 
 def text_summarizer(text: str):
+    """Summarize the text using the T5 summarization model."""
     payload = {"inputs": text}
     response = requests.post(summarizer_url, headers=headers, json=payload)
     logger.info(f"Summarizer response status code: {response.status_code}")
@@ -184,10 +189,11 @@ def text_summarizer(text: str):
 
 
 def add_text_to_image(image: Image, text: str):
+    """Add text to the image."""
     width, height = image.size
     text_position = (10, 10)
     # It should be font_path = "./public/Sanseriffic.otf" while running in local
-    font_path = "server/public/Sanseriffic.otf"
+    font_path = "./public/Sanseriffic.otf"
     font_size = 55
     try:
         font = ImageFont.truetype(font_path, font_size)
@@ -212,6 +218,7 @@ def add_text_to_image(image: Image, text: str):
 
 
 def add_line_breaks(text: str):
+    """Add line breaks to the text for better formatting."""
     try:
         words = text.split()
         new_text = ""
@@ -230,6 +237,7 @@ def add_line_breaks(text: str):
 
 @app.post("/generate-posts/")
 def generate_posts(request: PostRequest):
+    """Generate posts for LinkedIn, Twitter, and Instagram based on the provided text, name, and industry."""
 
     if not request.text.strip():
         raise HTTPException(status_code=422, detail="Text field cannot be empty")
@@ -250,6 +258,7 @@ def generate_posts(request: PostRequest):
 
 
 def generate_linkedin_post(text: str, name: str, industry: str):
+    """Generate a LinkedIn post based on the provided text, name, and industry."""
     prompt = (
         f"Write a LinkedIn post for {name}, a company in the {industry} industry. "
         f"The post should be professional, engaging, and informative. "
@@ -274,6 +283,7 @@ def generate_linkedin_post(text: str, name: str, industry: str):
 
 
 def generate_twitter_post(text: str, name: str, industry: str):
+    """Generate a Twitter post based on the provided text, name, and industry."""
     prompt = (
         f"Write a tweet for {name}, a company in the {industry} industry. "
         f"Highlight the latest news and developments specified in the following text: {text}. "
@@ -297,6 +307,7 @@ def generate_twitter_post(text: str, name: str, industry: str):
 
 
 def generate_insta_post(text: str, name: str, industry: str):
+    """Generate an Instagram post based on the provided text, name, and industry."""
     prompt = (
         f"Write an Instagram post for {name}, a company in the {industry} industry. "
         f"The post should be engaging, and informative. "
