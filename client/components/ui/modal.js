@@ -15,9 +15,7 @@ const Modal = ({ isOpen, onClose, children, title }) => {
             &times;
           </button>
         </div>
-        <div className="overflow-y-auto p-6 max-h-[70vh]">
-          {children}
-        </div>
+        <div className="overflow-y-auto p-6 max-h-[70vh]">{children}</div>
         <div className="flex justify-end px-6 py-4 border-t">
           <button
             onClick={onClose}

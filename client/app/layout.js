@@ -15,7 +15,8 @@ const fontSans = FontSans({
 
 export const metadata = {
   title: "AlignShare",
-  description: "A platform designed to automate the content sharing process for companies.",
+  description:
+    "A platform designed to automate the content sharing process for companies.",
 };
 
 export default function RootLayout({ children }) {
@@ -25,7 +26,7 @@ export default function RootLayout({ children }) {
       <body
         className={cn(
           "min-h-screen bg-background font-sans antialiased",
-          fontSans.variable
+          fontSans.variable,
         )}
       >
         <div className="main-container">
